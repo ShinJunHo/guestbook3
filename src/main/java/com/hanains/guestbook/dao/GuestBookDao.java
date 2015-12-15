@@ -1,7 +1,6 @@
 package com.hanains.guestbook.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,13 +8,55 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import oracle.jdbc.pool.OracleDataSource;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.hanains.guestbook.vo.GuestBookVo;
+
+
+/*
+ * 
+ * DAO -> MyBatis 까지 수정.
+ * XML 설정시 resultType ParameterType 신경쓰기.
+ * Getter와 Setter 이용시 필드네임 신경쓰기.
+ * 
+ * 
+ * */
 @Repository
 public class GuestBookDao {
 	
 	
+	@Autowired
+	private OracleDataSource oracleDataSource;
+	
+	@Autowired
+	private SqlSession sqlSession;
+	/*
+	private Connection getConnection() throws SQLException{
+		
+		Connection connection =null;
+		try{
+			//1.드라이버 로딩
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+			
+			//2.커넥션 만들기 db 연결.
+			String dbURL="jdbc:oracle:thin@localhost:1521:xe";
+			connection = DriverManager.getConnection(dbURL,"webdb","webdb");
+			
+		}catch(ClassNotFoundException ex){
+			System.out.println("드라이버 로딩 실패 :"+ex);
+		}
+		return connection;
+	}
+	*/
+	public List<GuestBookVo> getList(){
+		List<GuestBookVo> list = sqlSession.selectList("guestbook.list");
+		return list;
+	}
+	/*
 	public List<GuestBookVo> getList(){
 		List<GuestBookVo> list = new ArrayList<GuestBookVo>();
 		Connection connection = null;
@@ -23,12 +64,9 @@ public class GuestBookDao {
 		ResultSet rs= null;
 		
 		try{
-			//1.드라이버 로딩(클래스 로딩)
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			//2.DB연결
-			String dbUrl="jdbc:oracle:thin:@localhost:1521:xe";
-			connection = DriverManager.getConnection(dbUrl,"webdb","webdb");
 			
+			//connection =getConnection();
+			connection = oracleDataSource.getConnection();
 			//3.statement 생성
 			stmt = connection.createStatement();
 			
@@ -50,19 +88,10 @@ public class GuestBookDao {
 				vo.setReg_date(reg_date);
 				
 				list.add(vo);
-				
-				
-			
 			}
-			
-			
-			
-		}catch(ClassNotFoundException ex){
-			System.out.println("드라이버 연결 오류.:"+ex);
 		}catch(SQLException ex){
 			ex.printStackTrace();
 		}finally{
-			
 			try{
 				if(rs != null){
 					rs.close();
@@ -80,13 +109,20 @@ public class GuestBookDao {
 		}
 		return list;
 	}
+	*/
+	public void insert(GuestBookVo vo){
+		sqlSession.insert("guestbook.insert",vo);
+		
+	}
+	
+	/*
 	public void insert(GuestBookVo vo){
 		Connection connection =null;
 		PreparedStatement pstmt=null;
 		try{
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			String dbUrl="jdbc:oracle:thin:@localhost:1521:xe";
-			connection = DriverManager.getConnection(dbUrl,"webdb","webdb");
+			
+			//connection = getConnection();
+			connection = oracleDataSource.getConnection();
 			
 			//3.statement 준비
 			String sql="insert into guestbook values(GUESTBOOK_SEQ.nextval,?,?,?,SYSDATE)";
@@ -102,8 +138,6 @@ public class GuestBookDao {
 			
 			
 			
-		}catch(ClassNotFoundException ex){
-			System.out.println("드라이버 로딩 실패 : "+ex);
 		}catch(SQLException ex){
 			System.out.println("SQL error : "+ ex);
 		}
@@ -120,14 +154,21 @@ public class GuestBookDao {
 			}
 		}
 	}
+	*/
+	
+	public void delete(GuestBookVo vo){
+		sqlSession.delete("guestbook.delete",vo);
+	}
+	
+	/*
 	public void delete(GuestBookVo vo){
 		Connection connection = null;
 		PreparedStatement pstmt= null;
 		
 		try{
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			String dbUrl="jdbc:oracle:thin:@localhost:1521:xe";
-			connection = DriverManager.getConnection(dbUrl,"webdb","webdb");
+			
+			//connection = getConnection();
+			connection = oracleDataSource.getConnection();
 			
 			//3.statement 준비
 			String sql="delete from guestbook where no = ? and password=?";
@@ -141,8 +182,6 @@ public class GuestBookDao {
 			pstmt.executeUpdate();
 			
 			
-		}catch(ClassNotFoundException ex){
-			System.out.println("드라이버 로딩 실패: "+ex);
 		}catch(SQLException ex){
 			System.out.println("에러 : "+ex);
 		}finally{
@@ -158,5 +197,5 @@ public class GuestBookDao {
 				ex.printStackTrace();
 			}
 		}
-	}
+	}*/
 }

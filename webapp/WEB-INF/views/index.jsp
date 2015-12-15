@@ -33,7 +33,9 @@
 			</tr>
 		</table>
 	</form>
-	
+	<%
+		pageContext.setAttribute("newline","\n");
+	%>
 	<c:set var="count" value="${fn:length(list) }" />
 	<c:forEach items="${list }" var="vo" varStatus="status">
 	<br>
@@ -45,7 +47,7 @@
 			<td><a href="/guestbook3/deleteform?id=${vo.no }">삭제</a></td>
 		</tr>
 		<tr>
-			<td colspan=4>${vo.message}</td>
+			<td colspan=4>${fn:replace(vo.message,newline,"<br/>")}</td>
 		</tr>
 	</table>
 </c:forEach>
